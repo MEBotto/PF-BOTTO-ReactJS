@@ -1,4 +1,4 @@
-import Carrito from '../../../assets/Carrito.png'
+import Carrito from '/assets/carrito.png'
 import Badge from "react-bootstrap/Badge";
 import { useCartContext } from '../../context/CartContext';
 

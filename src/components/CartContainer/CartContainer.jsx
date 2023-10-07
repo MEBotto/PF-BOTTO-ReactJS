@@ -1,6 +1,6 @@
 import { useCartContext } from "../context/CartContext"
 import { addDoc, collection, getFirestore } from "firebase/firestore"
-import Carrito from '../../assets/carrito.png'
+import Carrito from '/assets/carrito.png'
 import { Link } from "react-router-dom"
 import CartContainerItemListContainer from "./CartContainerItemListContainer/CartContainerItemListContainer"
 import CartContainerSummary from "./CartContainerSummary/CartContainerSummary"
