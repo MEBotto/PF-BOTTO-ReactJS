@@ -10,7 +10,7 @@ const CartContainerItemList = ({ prod}) => {
           <img src={prod.imagen} alt="foto portada" width="64px"/>
         </div>
         <div className="col-4">
-          <div className="row ">
+          <div className="row">
             <h3 className="text-center">{prod.serie} {prod.tomo}</h3>
           </div>
           <div className="row">
@@ -39,7 +39,7 @@ const CartContainerItemList = ({ prod}) => {
             <h3 className="text-center">Subtotal</h3>
           </div>
           <div className="row">
-            <h4 className="text-center" id="${prod.id}Subtotal">${prod.precio * prod.quantity}</h4>
+            <h4 className="text-center">${prod.precio * prod.quantity}</h4>
           </div>
         </div>
       </div>

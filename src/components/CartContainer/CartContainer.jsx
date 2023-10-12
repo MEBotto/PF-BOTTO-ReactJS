@@ -4,7 +4,7 @@ import Carrito from '/assets/carrito.png'
 import { Link, useAsyncError } from "react-router-dom"
 import CartContainerItemListContainer from "./CartContainerItemListContainer/CartContainerItemListContainer"
 import CartContainerSummary from "./CartContainerSummary/CartContainerSummary"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Swal from 'sweetalert2'
 
 const CartContainer = () => {
@@ -25,31 +25,60 @@ const CartContainer = () => {
 
   const handleAddOrder = async (evt) => {
     evt.preventDefault()
-    const order = {}
-    order.buyer = dataForm
-    order.products = cartList.map(prod => {
-      return {id: prod.id, name: prod.serie + ' ' + prod.tomo, price: prod.precio, quantity: prod.quantity}
-    })
-    order.total = totalPriceProds
-
-    const queryDB = getFirestore()
-    const ordersCollection = collection(queryDB, 'orders')
-    addDoc(ordersCollection, order)
-    .then(({id}) => setID(id))
-    .catch(err => console.log(err))
-    .finally(() => {
-      setDataForm({
-        name: '',
-        phone: '',
-        email: ''
+    if(dataForm.name == '' || dataForm.phone == '' || dataForm.email == ''){
+      Swal.fire({
+        title: 'Error!',
+        text: 'No se pueden dejar las casillas en blanco',
+        icon: 'error',
+        confirmButtonText: 'Aceptar'
       })
-      deleteCart()
-    })
-  }
-
-  console.log(dataForm)
-  console.log(id)
+    }
+    else if(evt.target.email.value != evt.target.email2.value){
+      Swal.fire({
+        title: 'Error!',
+        text: 'Los emails no coinciden',
+        icon: 'error',
+        confirmButtonText: 'Aceptar'
+      })
+    }
+    else {
+      const order = {}
+      order.buyer = {
+        name: dataForm.name,
+        phone: dataForm.phone,
+        email: dataForm.email
+      }
+      order.products = cartList.map(prod => {
+        return {id: prod.id, name: prod.serie + ' ' + prod.tomo, price: prod.precio, quantity: prod.quantity}
+      })
+      order.total = totalPriceProds
   
+      const queryDB = getFirestore()
+      const ordersCollection = collection(queryDB, 'orders')
+      addDoc(ordersCollection, order)
+      .then(({id}) => setID(id))
+      .catch(err => console.log(err))
+      .finally(() => {
+        setDataForm({
+          name: '',
+          phone: '',
+          email: ''
+        })
+        deleteCart()     
+      })
+    }
+  }
+  useEffect(()=>{
+    if (id && id !== ''){
+      Swal.fire({
+        title: 'Compra registrada!',
+        text: `Orden de compra: ${id}`,
+        icon: 'info',
+        confirmButtonText: 'Aceptar'
+      })
+    }
+  },[id])
+
   return (
     <>
       { cartList.length != 0 ? 
@@ -71,14 +100,22 @@ const CartContainer = () => {
               </div>
             </section>
           </div>
-          <form className="form container mt-3" onSubmit={handleAddOrder}>
-            <input type="text" name="name" placeholder="Ingresar el nombre" className="form-control my-3" value={dataForm.name} onChange={handleOnChange}/>
-            <input type="text" name="phone" placeholder="Ingresar el telefono" className="form-control my-3" value={dataForm.phone} onChange={handleOnChange}/>
-            <input type="text" name="email" placeholder="Ingresar el email" className="form-control my-3" value={dataForm.email} onChange={handleOnChange}/>
-            <div className="d-flex justify-content-center">
-              <button className="btn btn-primary d-block mt-2 mb-3">Terminar compra</button>
+          <div className="container">
+            <div className="row">
+              <div className="col-9">
+                <h2 className="text-center mt-5">Datos de contacto</h2>
+                <form className="form mt-3" onSubmit={handleAddOrder}>
+                  <input type="text" name="name" placeholder="Ingresar el nombre" className="form-control my-3" value={dataForm.name} onChange={handleOnChange}/>
+                  <input type="text" name="phone" placeholder="Ingresar el telefono" className="form-control my-3" value={dataForm.phone} onChange={handleOnChange}/>
+                  <input type="text" name="email" placeholder="Ingresar el email" className="form-control my-3" value={dataForm.email} onChange={handleOnChange}/>
+                  <input type="text" name="email2" placeholder="Ingresar el email" className="form-control my-3" onChange={handleOnChange}/>
+                  <div className="d-flex justify-content-center">
+                    <button className="btn btn-primary d-block mt-2 mb-3">Terminar compra</button>
+                  </div>
+                </form> 
+              </div>
             </div>
-          </form>  
+          </div>
         </> 
       : 
         <>
@@ -108,24 +145,6 @@ const CartContainer = () => {
             </section>
           </div>
         </>
-      }
-      { id && id !== '' &&
-        <div className="container mt-5">
-          <section>  
-            <div className="row d-flex">
-              <div className="col-9">
-                <div className="card px-3 pb-3 bg-light pt-3">
-                  <div className="d-flex justify-content-center mt-5">
-                    <img className="d-flex justify-content-center" src={Carrito} height="64px" width="64px"/>
-                  </div>
-                  <h2 className="text-center mt-3">¡Compra registrada!</h2>
-                  <p className="text-center">Orden de compra: <b>{id}</b></p>
-                  <hr className="dropdown-divider"/>
-                </div> 
-              </div>
-            </div>
-          </section>
-        </div>
       }
     </>
   )
